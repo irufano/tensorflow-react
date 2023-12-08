@@ -22,6 +22,37 @@ export const drawFace = (prediction, ctx) => {
   }
 };
 
+export const multiDrawFace = (faces, ctx) => {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); //clear the canvas after every drawing
+  faces.forEach((prediction) => {
+    if (!prediction) return; // do not draw if there is no mesh
+    const kp = prediction.keypoints;
+    if (!kp) return; // do not draw if there is no keypoints
+    const keypoints = kp.map((keypoint) => [keypoint.x, keypoint.y]);
+
+    const box = prediction.box;
+    drawPath(
+      ctx,
+      [
+        [box.xMin, box.yMin],
+        [box.xMax, box.yMin],
+        [box.xMax, box.yMax],
+        [box.xMin, box.yMax],
+      ],
+      true
+    );
+    for (let i = 0; i < keypoints.length; i++) {
+      const x = keypoints[i][0];
+      const y = keypoints[i][1];
+  
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, 3 * Math.PI);
+      ctx.fillStyle = "aquamarine";
+      ctx.fill();
+    }
+  });
+};
+
 function drawPath(ctx, points, closePath) {
   const region = new Path2D();
   region.moveTo(points[0][0], points[0][1]);

@@ -1,7 +1,7 @@
 import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
 import * as faceDetection from "@tensorflow-models/face-detection";
 import { drawMesh } from "./drawMesh";
-import { drawFace } from "./drawFace";
+import { multiDrawFace } from "./drawFace";
 
 export const runMeshDetector = async (
   video,
@@ -50,12 +50,14 @@ export const runFaceDetector = async (
   video,
   canvas,
   onModelLoaded,
-  onFaceDetected
+  onFaceDetected,
+  onMoreThanOneFace
 ) => {
   onModelLoaded(false);
   const model = faceDetection.SupportedModels.MediaPipeFaceDetector;
   const detectorConfig = {
     runtime: "tfjs",
+    maxFaces: 5,
   };
   const detector = await faceDetection.createDetector(model, detectorConfig);
   const detect = async (net) => {
@@ -69,7 +71,12 @@ export const runFaceDetector = async (
     } else {
       onFaceDetected(false);
     }
-    requestAnimationFrame(() => drawFace(faces[0], ctx));
+    if (faces.length > 1) {
+      onMoreThanOneFace(true);
+    } else {
+      onMoreThanOneFace(false);
+    }
+    requestAnimationFrame(() => multiDrawFace(faces, ctx));
 
     detect(detector); //rerun the detect function after estimating
   };
