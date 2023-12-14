@@ -10,6 +10,9 @@ function App() {
   const canvasRef = useRef(null);
   const webcamRef = useRef(null);
   const [counter, setCounter] = useState(0);
+  const [onFrameState, serOnFrameState] = useState("");
+  const [multiFaceState, setMultiFaceState] = useState("");
+
   let number = 0;
   let loadTimeInterval = null;
 
@@ -32,7 +35,7 @@ function App() {
       });
   };
 
-  const startFaceDetection = (video, stream) => {
+  const startFaceDetection = async (video, stream) => {
     faceDetector
       .startFaceDetector(video, canvasRef.current, {
         onDetectorLoaded: (detectorLoaded) => {
@@ -44,7 +47,6 @@ function App() {
             loadTimeInterval = setInterval(() => {
               number++;
               setCounter(number);
-              // console.log(number);
             }, 1000);
           } else {
             console.log("detector loaded");
@@ -59,13 +61,17 @@ function App() {
           }
         },
         onFaceDetected: (isOnFrame) => {
-          if (!isOnFrame) {
-            console.log("Out of frame!");
+          if (isOnFrame) {
+            serOnFrameState("In frame");
+          } else {
+            serOnFrameState("Out of frame");
           }
         },
         onMultiFaceDetected: (isMultiFace) => {
           if (isMultiFace) {
-            console.log("Only one face allowed");
+            setMultiFaceState("Multi face");
+          } else {
+            setMultiFaceState("One face");
           }
         },
       })
@@ -110,6 +116,7 @@ function App() {
   };
 
   useEffect(() => {
+    console.log("HERE");
     startCamera();
     // eslint-disable-next-line
   }, []);
@@ -121,7 +128,13 @@ function App() {
         ref={webcamRef}
         width={videoResolution.width}
         height={videoResolution.height}
-        style={{ position: "absolute", color: "red", objectFit: "fill" }}
+        style={{
+          position: "absolute",
+          color: "red",
+          objectFit: "fill",
+          height: `${videoResolution.height}`,
+          width: `${videoResolution.width}`,
+        }}
         autoPlay
       />
       <canvas
@@ -131,8 +144,54 @@ function App() {
         height={videoResolution.height}
         style={{ position: "absolute" }}
       ></canvas>
-      <div style={{ position: "absolute", padding: "8px" }}>
-        <h3 style={{ color: "white" }}>Load time: {counter} s</h3>
+      <div
+        style={{
+          position: "absolute",
+          padding: "8px",
+          backgroundColor: "purple",
+        }}
+      >
+        <div>
+          <p
+            style={{
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bolder",
+              margin: "0px 0px 6px",
+            }}
+          >
+            Load time
+          </p>
+          <p
+            style={{ color: "white", fontSize: "12px", margin: "0px 0px 10px" }}
+          >
+            {counter} s
+          </p>
+        </div>
+
+        <div>
+          <p
+            style={{
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bolder",
+              margin: "0px",
+            }}
+          >
+            STATUS
+          </p>
+          <p
+            style={{ color: "white", fontSize: "12px", margin: "6px 0px 0px" }}
+          >
+            {onFrameState}
+          </p>
+          <p
+            style={{ color: "white", fontSize: "12px", margin: "0px 0px 20px" }}
+          >
+            {multiFaceState}
+          </p>
+        </div>
+
         <button onClick={handleScreenshot}>Snapshot</button>
       </div>
     </div>
