@@ -108,10 +108,9 @@ class FaceDetector {
               onMultiFaceDetected
             );
           }, 100);
+          onStarted();
         }
       }, 1500);
-
-      onStarted();
     } catch (error) {
       console.log("@startFaceDetector error: ", error);
       throw new Error(error);
