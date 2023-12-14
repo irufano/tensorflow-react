@@ -1,35 +1,28 @@
-// import * as faceDetection from "@tensorflow-models/face-detection";
-import * as tf from "@tensorflow/tfjs-core";
-import drawFaceMarkers from "./markerUtil";
-import { createFaceDetector } from "./detector";
+import * as tf from '@tensorflow/tfjs-core'
+import drawFaceMarkers from './markerUtil'
+import { createFaceDetector, fdErrorKey } from './detector'
 
 // Register WebGL backend.
-import "@tensorflow/tfjs-backend-webgl";
-// import "@tensorflow/tfjs-backend-webgpu";
-// import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
-// tfjsWasm.setWasmPaths(
-//     `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${
-//         tfjsWasm.version_wasm}/dist/`);
+import '@tensorflow/tfjs-backend-webgl'
 
-let instance;
-export const FD_ERROR_KEY = "@faceDetection";
+let instance
 
 class FaceDetector {
   constructor() {
     if (instance) {
-      throw new Error(`${FD_ERROR_KEY} You can only create one instance!`);
+      throw new Error(`${fdErrorKey} You can only create one instance!`)
     }
-    this.detector = null;
-    this.detectorInterval = null;
-    instance = this;
+    this.detector = null
+    this.detectorInterval = null
+    instance = this
   }
 
   getInstance() {
-    return this;
+    return this
   }
 
   setDetector(detector) {
-    this.detector = detector;
+    this.detector = detector
   }
 
   /**
@@ -39,14 +32,14 @@ class FaceDetector {
    */
   async createDetector(onDetectorLoaded) {
     try {
-      await tf.setBackend("webgl");
-      onDetectorLoaded(false);
+      await tf.setBackend('webgl')
+      onDetectorLoaded(false)
       // console.log('detector loading')
       // check current detector
       if (this.detector !== null) {
         // console.log('detector exist')
-        onDetectorLoaded(true);
-        return this.detector;
+        onDetectorLoaded(true)
+        return this.detector
       }
       // const model = faceDetection.SupportedModels.MediaPipeFaceDetector;
       // const detectorConfig = {
@@ -62,15 +55,15 @@ class FaceDetector {
       const faceDetector = await createFaceDetector({
         maxFaces: 5,
         minScoreThresh: 0.6,
-      });
-      this.setDetector(faceDetector);
+      })
+      this.setDetector(faceDetector)
       // console.log('detector loaded')
-      onDetectorLoaded(true);
-      return this.detector;
+      onDetectorLoaded(true)
+      return this.detector
     } catch (error) {
-      const err = new Error(error);
-      err.message = `${FD_ERROR_KEY} @createDetector error: ${err.stack}`;
-      throw err;
+      const err = new Error(error)
+      err.message = `${fdErrorKey} @createDetector error: ${err.stack}`
+      throw err
     }
   }
 
@@ -87,36 +80,26 @@ class FaceDetector {
   async startFaceDetector(
     video,
     canvas,
-    {
-      onStarted = () => {},
-      onDetectorLoaded,
-      onFaceDetected,
-      onMultiFaceDetected,
-    }
+    { onStarted = () => {}, onDetectorLoaded, onFaceDetected, onMultiFaceDetected },
   ) {
     try {
       if (this.detector == null) {
-        await this.createDetector((loaded) => onDetectorLoaded(loaded));
+        await this.createDetector((loaded) => onDetectorLoaded(loaded))
       }
 
       // Add timeout to handle webgl error: Requested texture size [0x0] is invalid
       setTimeout(() => {
         if (this.detectorInterval === null) {
           this.detectorInterval = setInterval(async () => {
-            await this.detect(
-              video,
-              canvas,
-              onFaceDetected,
-              onMultiFaceDetected
-            );
-          }, 100);
-          onStarted();
+            await this.detect(video, canvas, onFaceDetected, onMultiFaceDetected)
+          }, 100)
+          onStarted()
         }
-      }, 1500);
+      }, 1000)
     } catch (error) {
-      const err = new Error(error);
-      err.message = `${FD_ERROR_KEY} @startFaceDetector error: ${err.stack}`;
-      throw err;
+      const err = new Error(error)
+      err.message = `${fdErrorKey} @startFaceDetector error: ${err.stack}`
+      throw err
     }
   }
 
@@ -130,22 +113,22 @@ class FaceDetector {
    */
   async detect(input, canvas, onFaceDetected, onMultiFaceDetected) {
     try {
-      const estimationConfig = { flipHorizontal: false };
-      const faces = await this.detector.estimateFaces(input, estimationConfig);
-      const ctx = canvas.getContext("2d");
+      const estimationConfig = { flipHorizontal: false }
+      const faces = await this.detector.estimateFaces(input, estimationConfig)
+      const ctx = canvas.getContext('2d')
       // console.log(faces)
 
-      if (faces.length !== 0) onFaceDetected(true);
-      else onFaceDetected(false);
+      if (faces.length !== 0) onFaceDetected(true)
+      else onFaceDetected(false)
 
-      if (faces.length > 1) onMultiFaceDetected(true);
-      else onMultiFaceDetected(false);
+      if (faces.length > 1) onMultiFaceDetected(true)
+      else onMultiFaceDetected(false)
 
-      requestAnimationFrame(() => drawFaceMarkers(faces, ctx));
+      requestAnimationFrame(() => drawFaceMarkers(faces, ctx))
     } catch (error) {
-      const err = new Error(error);
-      err.message = `${FD_ERROR_KEY} @detect error: ${err.stack}`;
-      throw err;
+      const err = new Error(error)
+      err.message = `${fdErrorKey} @detect error: ${err.stack}`
+      throw err
     }
   }
 
@@ -159,21 +142,21 @@ class FaceDetector {
   async detectImage(input, canvas, { onDetectorLoaded = () => {} } = {}) {
     try {
       if (this.detector == null) {
-        await this.createDetector(onDetectorLoaded);
+        await this.createDetector(onDetectorLoaded)
       }
-      const estimationConfig = { flipHorizontal: false };
-      const faces = await this.detector.estimateFaces(input, estimationConfig);
-      const ctx = canvas.getContext("2d");
+      const estimationConfig = { flipHorizontal: false }
+      const faces = await this.detector.estimateFaces(input, estimationConfig)
+      const ctx = canvas.getContext('2d')
       drawFaceMarkers(faces, ctx, {
         withClear: false,
         withKeypoint: false,
         boxWidth: 2,
-      });
-      return faces;
+      })
+      return faces
     } catch (error) {
-      const err = new Error(error);
-      err.message = `${FD_ERROR_KEY} @detectImage error: ${err.stack}`;
-      throw err;
+      const err = new Error(error)
+      err.message = `${fdErrorKey} @detectImage error: ${err.stack}`
+      throw err
     }
   }
 
@@ -183,18 +166,18 @@ class FaceDetector {
    */
   stopFaceDetector(onStop = () => {}) {
     try {
-      clearInterval(this.detectorInterval);
-      this.detectorInterval = null;
-      onStop();
+      clearInterval(this.detectorInterval)
+      this.detectorInterval = null
+      onStop()
       // console.log('detector stopped')
     } catch (error) {
-      const err = new Error(error);
-      err.message = `${FD_ERROR_KEY} @stopFaceDetector error: ${err.stack}`;
-      throw err;
+      const err = new Error(error)
+      err.message = `${fdErrorKey} @stopFaceDetector error: ${err.stack}`
+      throw err
     }
   }
 }
 
-const faceDetector = new FaceDetector();
+const faceDetector = new FaceDetector()
 
-export default faceDetector;
+export default faceDetector

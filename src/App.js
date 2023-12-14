@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import faceDetector, { FD_ERROR_KEY } from "./service/faceDetector";
+import faceDetector from "./service/faceDetector";
+import { fdErrorKey } from "./service/detector";
 
 const videoResolution = {
   width: 640,
@@ -17,7 +18,7 @@ function App() {
   let loadTimeInterval = null;
 
   window.addEventListener("error", function (event) {
-    if (event?.message?.includes(FD_ERROR_KEY)) {
+    if (event?.message?.includes(fdErrorKey)) {
       console.log("ERROR FD: ", event);
     }
   });

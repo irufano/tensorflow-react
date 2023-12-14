@@ -1,4 +1,4 @@
-import { FD_ERROR_KEY } from "./faceDetector";
+import { fdErrorKey } from './detector'
 
 /**
  *  draw face detections canvas
@@ -17,23 +17,23 @@ function drawFaceMarkers(
   {
     withClear = true,
     withKeypoint = true,
-    pointColor = "aquamarine",
-    boxColor = "tomato",
+    pointColor = 'aquamarine',
+    boxColor = 'tomato',
     boxWidth = 3,
-  } = {}
+  } = {},
 ) {
   try {
     if (withClear) {
       // clear the canvas after every drawing
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     }
     faces.forEach((face) => {
       // do not draw if there is no face
-      if (!face) return;
-      const kp = face.keypoints;
+      if (!face) return
+      const kp = face.keypoints
       // do not draw if there is no keypoints
-      if (!kp) return;
-      const keypoints = kp.map((keypoint) => [keypoint.x, keypoint.y]);
+      if (!kp) return
+      const keypoints = kp.map((keypoint) => [keypoint.x, keypoint.y])
 
       // draw box
       drawPath(
@@ -46,43 +46,43 @@ function drawFaceMarkers(
         ],
         true,
         boxColor,
-        boxWidth
-      );
+        boxWidth,
+      )
 
       if (withKeypoint) {
         // draw keypoint
         for (let i = 0; i < keypoints.length; i++) {
-          const x = keypoints[i][0];
-          const y = keypoints[i][1];
+          const x = keypoints[i][0]
+          const y = keypoints[i][1]
 
-          ctx.beginPath();
-          ctx.arc(x, y, 1, 0, 3 * Math.PI);
-          ctx.fillStyle = pointColor;
-          ctx.fill();
+          ctx.beginPath()
+          ctx.arc(x, y, 1, 0, 3 * Math.PI)
+          ctx.fillStyle = pointColor
+          ctx.fill()
         }
       }
-    });
+    })
   } catch (error) {
-    const err = new Error(error);
-    err.message = `${FD_ERROR_KEY} @drawFaceMarkers error: ${err.stack}`;
-    throw err;
+    const err = new Error(error)
+    err.message = `${fdErrorKey} @drawFaceMarkers error: ${err.stack}`
+    throw err
   }
 }
 
 function drawPath(ctx, points, closePath, color, lineWidth) {
-  const region = new Path2D();
-  region.moveTo(points[0][0], points[0][1]);
+  const region = new Path2D()
+  region.moveTo(points[0][0], points[0][1])
   for (let i = 1; i < points.length; i++) {
-    const point = points[i];
-    region.lineTo(point[0], point[1]);
+    const point = points[i]
+    region.lineTo(point[0], point[1])
   }
 
   if (closePath) {
-    region.closePath();
+    region.closePath()
   }
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-  ctx.stroke(region);
+  ctx.strokeStyle = color
+  ctx.lineWidth = lineWidth
+  ctx.stroke(region)
 }
 
-export default drawFaceMarkers;
+export default drawFaceMarkers
