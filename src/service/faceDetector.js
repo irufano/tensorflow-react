@@ -12,11 +12,12 @@ import "@tensorflow/tfjs-backend-webgl";
 //         tfjsWasm.version_wasm}/dist/`);
 
 let instance;
+export const FD_ERROR_KEY = "@faceDetection";
 
 class FaceDetector {
   constructor() {
     if (instance) {
-      throw new Error("You can only create one instance!");
+      throw new Error(`${FD_ERROR_KEY} You can only create one instance!`);
     }
     this.detector = null;
     this.detectorInterval = null;
@@ -67,8 +68,9 @@ class FaceDetector {
       onDetectorLoaded(true);
       return this.detector;
     } catch (error) {
-      console.log("@createDetector error: ", error);
-      throw new Error(error);
+      const err = new Error(error);
+      err.message = `${FD_ERROR_KEY} @createDetector error: ${err.stack}`;
+      throw err;
     }
   }
 
@@ -112,8 +114,9 @@ class FaceDetector {
         }
       }, 1500);
     } catch (error) {
-      console.log("@startFaceDetector error: ", error);
-      throw new Error(error);
+      const err = new Error(error);
+      err.message = `${FD_ERROR_KEY} @startFaceDetector error: ${err.stack}`;
+      throw err;
     }
   }
 
@@ -140,8 +143,9 @@ class FaceDetector {
 
       requestAnimationFrame(() => drawFaceMarkers(faces, ctx));
     } catch (error) {
-      console.log("@detect error: ", error);
-      throw new Error(error);
+      const err = new Error(error);
+      err.message = `${FD_ERROR_KEY} @detect error: ${err.stack}`;
+      throw err;
     }
   }
 
@@ -167,8 +171,9 @@ class FaceDetector {
       });
       return faces;
     } catch (error) {
-      console.log("@detectImage error: ", error);
-      throw new Error(error);
+      const err = new Error(error);
+      err.message = `${FD_ERROR_KEY} @detectImage error: ${err.stack}`;
+      throw err;
     }
   }
 
@@ -183,8 +188,9 @@ class FaceDetector {
       onStop();
       // console.log('detector stopped')
     } catch (error) {
-      console.log("@stopFaceDetector error: ", error);
-      throw new Error(error);
+      const err = new Error(error);
+      err.message = `${FD_ERROR_KEY} @stopFaceDetector error: ${err.stack}`;
+      throw err;
     }
   }
 }

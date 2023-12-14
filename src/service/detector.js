@@ -27,7 +27,7 @@ export class CustomFaceDetector {
 
   /**
    * dispose
-   * 
+   *
    */
   dispose() {
     this.detectorModel.dispose();
@@ -41,7 +41,7 @@ export class CustomFaceDetector {
 
   /**
    * reset
-   * 
+   *
    */
   reset() {}
 

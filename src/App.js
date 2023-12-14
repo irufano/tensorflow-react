@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import faceDetector from "./service/faceDetector";
+import faceDetector, { FD_ERROR_KEY } from "./service/faceDetector";
 
 const videoResolution = {
   width: 640,
@@ -15,6 +15,12 @@ function App() {
 
   let number = 0;
   let loadTimeInterval = null;
+
+  window.addEventListener("error", function (event) {
+    if (event?.message?.includes(FD_ERROR_KEY)) {
+      console.log("ERROR FD: ", event);
+    }
+  });
 
   const startCamera = async () => {
     const constraint = {

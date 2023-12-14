@@ -1,3 +1,5 @@
+import { FD_ERROR_KEY } from "./faceDetector";
+
 /**
  *  draw face detections canvas
  *
@@ -9,7 +11,7 @@
  * @param boxColor color of border box detection
  * @param boxWidth lineWidth of border box detection
  */
-const drawFaceMarkers = (
+function drawFaceMarkers(
   faces,
   ctx,
   {
@@ -19,7 +21,7 @@ const drawFaceMarkers = (
     boxColor = "tomato",
     boxWidth = 3,
   } = {}
-) => {
+) {
   try {
     if (withClear) {
       // clear the canvas after every drawing
@@ -61,10 +63,11 @@ const drawFaceMarkers = (
       }
     });
   } catch (error) {
-    console.log("@drawFaceMarkers error: ", error);
-    throw new Error(error);
+    const err = new Error(error);
+    err.message = `${FD_ERROR_KEY} @drawFaceMarkers error: ${err.stack}`;
+    throw err;
   }
-};
+}
 
 function drawPath(ctx, points, closePath, color, lineWidth) {
   const region = new Path2D();
